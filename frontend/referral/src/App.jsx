@@ -1,27 +1,25 @@
-import React, { useState } from 'react';
-import './App.css';
-import ReferralDashboard from './components/ReferralDashboard';
-import ReferralForm from './components/ReferralForm';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <ReferralDashboard onNavigateToForm={() => setCurrentPage('form')} />;
-      case 'form':
-        return <ReferralForm onNavigateBack={() => setCurrentPage('dashboard')} />;
-      default:
-        return <ReferralDashboard onNavigateToForm={() => setCurrentPage('form')} />;
-    }
-  };
+const App = () => {
+  const isAuthenticated = !!localStorage.getItem("token");
 
   return (
-    <div className="app">
-      {renderCurrentPage()}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+        />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

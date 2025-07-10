@@ -22,7 +22,6 @@ const CandidateCard = ({ candidate, onUpdateStatus, onDeleteCandidate }) => {
       <div className="candidate-details">
         <p><strong>Job Title:</strong> {candidate.JobTitle}</p>
         <p><strong>Email:</strong> {candidate.Email}</p>
-        <p><strong>Phone:</strong> {candidate.PhoneNumber}</p>
       </div>
       
       <div className="candidate-actions">

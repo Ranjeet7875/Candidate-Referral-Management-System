@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CandidateCard from './CandidateCard';
 
 const ReferralDashboard = ({ onNavigateToForm }) => {
@@ -10,15 +10,25 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
-  // Fetch candidates on component mount
   useEffect(() => {
     fetchCandidates();
   }, []);
 
-  // Filter candidates when search/filter criteria change
+  const filterCandidates = useCallback(() => {
+    const filtered = candidates.filter(candidate => {
+      const matchesSearch = candidate.CandidateName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesJobTitle = !jobTitleFilter || candidate.JobTitle === jobTitleFilter;
+      const matchesStatus = !statusFilter || candidate.Status === statusFilter;
+
+      return matchesSearch && matchesJobTitle && matchesStatus;
+    });
+
+    setFilteredCandidates(filtered);
+  }, [candidates, searchTerm, jobTitleFilter, statusFilter]);
+
   useEffect(() => {
     filterCandidates();
-  }, [candidates, searchTerm, jobTitleFilter, statusFilter]);
+  }, [filterCandidates]);
 
   const fetchCandidates = async () => {
     setLoading(true);
@@ -33,18 +43,6 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
     }
   };
 
-  const filterCandidates = () => {
-    let filtered = candidates.filter(candidate => {
-      const matchesSearch = candidate.CandidateName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesJobTitle = !jobTitleFilter || candidate.JobTitle === jobTitleFilter;
-      const matchesStatus = !statusFilter || candidate.Status === statusFilter;
-      
-      return matchesSearch && matchesJobTitle && matchesStatus;
-    });
-
-    setFilteredCandidates(filtered);
-  };
-
   const updateCandidateStatus = async (candidateId, newStatus) => {
     try {
       const response = await fetch(`http://localhost:4000/referral/candidates/${candidateId}/status`, {
@@ -56,8 +54,14 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
       });
 
       if (response.ok) {
+        setCandidates(prevCandidates =>
+          prevCandidates.map(candidate =>
+            candidate._id === candidateId
+              ? { ...candidate, Status: newStatus }
+              : candidate
+          )
+        );
         showNotification('Status updated successfully!', 'success');
-        fetchCandidates();
       } else {
         showNotification('Failed to update status', 'error');
       }
@@ -74,8 +78,10 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
         });
 
         if (response.ok) {
+          setCandidates(prevCandidates =>
+            prevCandidates.filter(candidate => candidate._id !== candidateId)
+          );
           showNotification('Candidate deleted successfully!', 'success');
-          fetchCandidates();
         } else {
           showNotification('Failed to delete candidate', 'error');
         }
@@ -116,7 +122,6 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
         </button>
       </div>
 
-      {/* Quick Stats Section */}
       <div className="section">
         <h2>Quick Stats</h2>
         <div className="stats-grid">
@@ -139,11 +144,9 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
         </div>
       </div>
 
-      {/* Dashboard Section */}
       <div className="section dashboard-section">
         <h2>All Candidates</h2>
-        
-        {/* Search and Filter Controls */}
+
         <div className="search-filters">
           <input
             type="text"
@@ -171,14 +174,13 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
           </select>
         </div>
 
-        {/* Candidates Grid */}
         <div className="candidates-container">
           {loading ? (
             <div className="loading">Loading candidates...</div>
           ) : filteredCandidates.length === 0 ? (
             <div className="no-candidates">
-              {candidates.length === 0 
-                ? "No candidates found. Start by referring your first candidate!" 
+              {candidates.length === 0
+                ? "No candidates found. Start by referring your first candidate!"
                 : "No candidates found matching your criteria."
               }
             </div>
@@ -197,7 +199,6 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
         </div>
       </div>
 
-      {/* Notification */}
       {notification.show && (
         <div className={`notification ${notification.type} show`}>
           {notification.message}
