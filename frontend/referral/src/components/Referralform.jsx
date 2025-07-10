@@ -74,7 +74,7 @@ const ReferralForm = ({ onNavigateBack }) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:4000/referral/candidates', {
+      const response = await fetch('https://candidate-referral-management-system-m5yq.onrender.com/referral/candidates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

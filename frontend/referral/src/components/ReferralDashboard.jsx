@@ -33,7 +33,7 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/referral/candidates');
+      const response = await fetch('https://candidate-referral-management-system-m5yq.onrender.com/referral/candidates');
       const data = await response.json();
       setCandidates(data);
     } catch (error) {
@@ -45,7 +45,7 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:4000/referral/candidates/${candidateId}/status`, {
+      const response = await fetch(`https://candidate-referral-management-system-m5yq.onrender.com/referral/candidates/${candidateId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const ReferralDashboard = ({ onNavigateToForm }) => {
   const deleteCandidate = async (candidateId) => {
     if (window.confirm('Are you sure you want to delete this candidate?')) {
       try {
-        const response = await fetch(`http://localhost:4000/referral/candidates/${candidateId}`, {
+        const response = await fetch(`https://candidate-referral-management-system-m5yq.onrender.com/referral/candidates/${candidateId}`, {
           method: 'DELETE'
         });
 
